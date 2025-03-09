@@ -23,16 +23,20 @@ try:
                         skipped_samples.append(row)
                         continue
                     date_time.append(row[0])
-                    traffic_volume.append(int(row[-1]))  # Ensure correct index for traffic volume
-                    rainfall.append(float(row[9]))  # Adjusted to correct CSV column index
-                    snowfall.append(float(row[10]))  # Adjusted to correct CSV column index
-                except (ValueError, IndexError):
+                    traffic_volume.append(int(row[-1]))  # Convert traffic volume to integer
+                    rainfall.append(float(row[9]))  # Convert rainfall to float
+                    snowfall.append(float(row[10]))  # Convert snowfall to float
+                except ValueError as e:
+                    print(f"Skipping row due to ValueError: {row} -> {e}")
+                    skipped_rows += 1
+                    skipped_samples.append(row)
+                except IndexError as e:
+                    print(f"Skipping row due to IndexError: {row} -> {e}")
                     skipped_rows += 1
                     skipped_samples.append(row)
         except (csv.Error, UnicodeDecodeError, Exception) as e:
             print(f"Error: The file format is incorrect or corrupted. Details: {e}")
             exit()
-
 except FileNotFoundError:
     print("Error: File not found. Please check the file location.")
     exit()
@@ -50,6 +54,7 @@ for dt in date_time:
         hours.append(dt_obj.hour)
         days_of_week.append(dt_obj.strftime("%A"))
     except ValueError:
+        print(f"Skipping invalid date format: '{dt}' -> {e}")
         continue
 
 # Group traffic volume by hour
